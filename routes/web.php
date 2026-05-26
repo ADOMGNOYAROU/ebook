@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardEbookController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\EbookController as AdminEbookController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\PublicEbookController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\UserSubscriptionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
@@ -53,6 +55,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Tableau de bord utilisateur
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
+    // Catalogue avec sidebar (version dashboard)
+    Route::get('/catalogue', [DashboardEbookController::class, 'index'])->name('dashboard.catalogue');
+    
     // Profil utilisateur
     Route::get('/profile/show', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -66,15 +71,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Téléchargements
     Route::get('/downloads/history', [DownloadController::class, 'index'])->name('downloads.history');
     
+    // Avis
+    Route::post('/reviews', [\App\Http\Controllers\ReviewController::class, 'store'])->name('reviews.store');
+    Route::delete('/reviews/{review}', [\App\Http\Controllers\ReviewController::class, 'destroy'])->name('reviews.destroy');
+    
+    // Souscription (gratuit/premium)
+    Route::prefix('subscription')->name('user.subscription.')->group(function () {
+        Route::get('/', [UserSubscriptionController::class, 'index'])->name('index');
+        Route::post('/subscribe', [UserSubscriptionController::class, 'subscribe'])->name('subscribe');
+        Route::get('/success', [UserSubscriptionController::class, 'success'])->name('success');
+        Route::get('/cancel', [UserSubscriptionController::class, 'cancel'])->name('cancel');
+    });
+    
     // Paiements
     Route::get('/checkout/{ebook}', [PaymentController::class, 'checkout'])->name('checkout');
     Route::post('/process-payment/{ebook}', [PaymentController::class, 'processPayment'])->name('process.payment');
     Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
     Route::get('/payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
     
-    // Webhook Stripe (doit être en dehors du middleware CSRF)
-    Route::post('/stripe/webhook', [PaymentController::class, 'webhook'])
-        ->name('stripe.webhook')
+    // Webhook PayGateGlobal (doit être en dehors du middleware CSRF)
+    Route::post('/paygateglobal/webhook', [PaymentController::class, 'webhook'])
+        ->name('paygateglobal.webhook')
         ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 });
 

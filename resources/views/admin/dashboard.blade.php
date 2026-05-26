@@ -1,189 +1,124 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
-@section('title', 'Tableau de bord administrateur')
+@section('title', 'Vue d\'ensemble')
+@section('subtitle', 'Bienvenue dans votre espace administration')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Tableau de bord administrateur</h1>
-        <p class="mt-2 text-sm text-gray-600">Bienvenue dans votre espace d'administration</p>
-    </div>
 
-    <!-- Cartes de statistiques -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <!-- Nombre total d'ebooks -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
-                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-sm font-medium text-gray-500">Total Ebooks</h3>
-                    <p class="text-2xl font-semibold text-gray-900">{{ number_format($stats['totalEbooks']) }}</p>
-                </div>
-            </div>
+{{-- KPI CARDS --}}
+<div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    @php
+        $kpis = [
+            ['label'=>'E-books',         'value'=> number_format($stats['totalEbooks']),     'icon'=>'fa-book',         'color'=>'indigo'],
+            ['label'=>'Utilisateurs',    'value'=> number_format($stats['totalUsers']),      'icon'=>'fa-users',        'color'=>'emerald'],
+            ['label'=>'Téléchargements', 'value'=> number_format($stats['totalDownloads']),  'icon'=>'fa-download',     'color'=>'amber'],
+            ['label'=>'Catégories',      'value'=> number_format($stats['totalCategories']), 'icon'=>'fa-tags',         'color'=>'violet'],
+        ];
+        $clr = [
+            'indigo'  => ['bg'=>'bg-indigo-50',  'ic'=>'text-indigo-600',  'ring'=>'ring-indigo-100'],
+            'emerald' => ['bg'=>'bg-emerald-50', 'ic'=>'text-emerald-600', 'ring'=>'ring-emerald-100'],
+            'amber'   => ['bg'=>'bg-amber-50',   'ic'=>'text-amber-600',   'ring'=>'ring-amber-100'],
+            'violet'  => ['bg'=>'bg-violet-50',  'ic'=>'text-violet-600',  'ring'=>'ring-violet-100'],
+        ];
+    @endphp
+    @foreach($kpis as $k)
+    @php $c = $clr[$k['color']]; @endphp
+    <div class="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl {{ $c['bg'] }} ring-4 {{ $c['ring'] }}">
+            <i class="fas {{ $k['icon'] }} {{ $c['ic'] }}"></i>
         </div>
-
-        <!-- Nombre total d'utilisateurs -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
-                <div class="p-3 rounded-full bg-green-100 text-green-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-sm font-medium text-gray-500">Utilisateurs</h3>
-                    <p class="text-2xl font-semibold text-gray-900">{{ number_format($stats['totalUsers']) }}</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Nombre total de téléchargements -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
-                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-sm font-medium text-gray-500">Téléchargements</h3>
-                    <p class="text-2xl font-semibold text-gray-900">{{ number_format($stats['totalDownloads']) }}</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Nombre total de catégories -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
-                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                    </svg>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-sm font-medium text-gray-500">Catégories</h3>
-                    <p class="text-2xl font-semibold text-gray-900">{{ number_format($stats['totalCategories']) }}</p>
-                </div>
-            </div>
+        <div>
+            <p class="text-2xl font-black text-slate-900">{{ $k['value'] }}</p>
+            <p class="text-xs font-semibold text-slate-400">{{ $k['label'] }}</p>
         </div>
     </div>
+    @endforeach
+</div>
 
-    <!-- Derniers ajouts -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <!-- Derniers ebooks ajoutés -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900">Derniers ebooks ajoutés</h3>
-            </div>
-            <div class="divide-y divide-gray-200">
-                @forelse($stats['recentEbooks'] as $ebook)
-                    <div class="p-4 hover:bg-gray-50">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0 h-10 w-10 rounded-md bg-gray-200 flex items-center justify-center">
-                                <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                </svg>
-                            </div>
-                            <div class="ml-4">
-                                <h4 class="text-sm font-medium text-gray-900">{{ $ebook->title }}</h4>
-                                <p class="text-sm text-gray-500">Ajouté le {{ $ebook->created_at->format('d/m/Y') }}</p>
-                            </div>
-                        </div>
-                    </div>
-                @empty
-                    <div class="p-4 text-center text-gray-500">
-                        Aucun ebook trouvé
-                    </div>
-                @endforelse
-            </div>
-            <div class="px-6 py-3 bg-gray-50 text-right">
-                <a href="{{ route('admin.ebooks.index') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                    Voir tous les ebooks →
+{{-- ACTIONS RAPIDES --}}
+<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <a href="{{ route('admin.ebooks.create') }}"
+       class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3.5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md">
+        <span class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+            <i class="fas fa-plus text-sm"></i>
+        </span>
+        <span class="text-sm font-bold text-slate-700">Ajouter ebook</span>
+    </a>
+    <a href="{{ route('admin.categories.index') }}"
+       class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3.5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md">
+        <span class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+            <i class="fas fa-tags text-sm"></i>
+        </span>
+        <span class="text-sm font-bold text-slate-700">Catégories</span>
+    </a>
+    <a href="{{ route('admin.users.index') }}"
+       class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3.5 shadow-sm transition hover:-translate-y-0.5 hover:border-amber-200 hover:shadow-md">
+        <span class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+            <i class="fas fa-users text-sm"></i>
+        </span>
+        <span class="text-sm font-bold text-slate-700">Utilisateurs</span>
+    </a>
+    <a href="{{ route('admin.stats') }}"
+       class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3.5 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md">
+        <span class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+            <i class="fas fa-chart-bar text-sm"></i>
+        </span>
+        <span class="text-sm font-bold text-slate-700">Statistiques</span>
+    </a>
+</div>
+
+{{-- LISTES --}}
+<div class="mt-6 grid gap-6 lg:grid-cols-2">
+
+    {{-- Derniers ebooks --}}
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+            <h2 class="text-sm font-black text-slate-900">Derniers e-books ajoutés</h2>
+            <a href="{{ route('admin.ebooks.index') }}" class="text-xs font-bold text-amber-600 hover:text-amber-700">Voir tout →</a>
+        </div>
+        <ul class="divide-y divide-slate-100">
+            @forelse($stats['recentEbooks'] as $ebook)
+            <li class="flex items-center gap-4 px-6 py-4 hover:bg-slate-50 transition">
+                <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-500">
+                    <i class="fas fa-book text-sm"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="truncate text-sm font-bold text-slate-800">{{ $ebook->title }}</p>
+                    <p class="text-xs text-slate-400">{{ $ebook->author }} · {{ $ebook->created_at->format('d/m/Y') }}</p>
+                </div>
+                <a href="{{ route('admin.ebooks.edit', $ebook) }}"
+                   class="flex-shrink-0 rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-700 transition">
+                    Éditer
                 </a>
-            </div>
-        </div>
-
-        <!-- Derniers utilisateurs inscrits -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900">Derniers utilisateurs inscrits</h3>
-            </div>
-            <div class="divide-y divide-gray-200">
-                @forelse($stats['recentUsers'] as $user)
-                    <div class="p-4 hover:bg-gray-50">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                <span class="text-gray-600">{{ substr($user->name, 0, 1) }}</span>
-                            </div>
-                            <div class="ml-4">
-                                <h4 class="text-sm font-medium text-gray-900">{{ $user->name }}</h4>
-                                <p class="text-sm text-gray-500">Inscrit le {{ $user->created_at->format('d/m/Y') }}</p>
-                            </div>
-                        </div>
-                    </div>
-                @empty
-                    <div class="p-4 text-center text-gray-500">
-                        Aucun utilisateur trouvé
-                    </div>
-                @endforelse
-            </div>
-            <div class="px-6 py-3 bg-gray-50 text-right">
-                <a href="{{ route('admin.users.index') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                    Voir tous les utilisateurs →
-                </a>
-            </div>
-        </div>
+            </li>
+            @empty
+            <li class="px-6 py-8 text-center text-sm text-slate-400">Aucun ebook</li>
+            @endforelse
+        </ul>
     </div>
 
-    <!-- Liens rapides -->
-    <div class="bg-white rounded-lg shadow p-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Actions rapides</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <a href="{{ route('admin.ebooks.create') }}" class="group p-4 border border-gray-200 rounded-lg hover:bg-indigo-50 transition-colors">
-                <div class="flex items-center">
-                    <div class="p-2 rounded-md bg-indigo-100 text-indigo-600 group-hover:bg-indigo-200 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                    </div>
-                    <span class="ml-3 text-sm font-medium text-gray-700 group-hover:text-indigo-600">Ajouter un ebook</span>
-                </div>
-            </a>
-            <a href="{{ route('admin.categories.create') }}" class="group p-4 border border-gray-200 rounded-lg hover:bg-green-50 transition-colors">
-                <div class="flex items-center">
-                    <div class="p-2 rounded-md bg-green-100 text-green-600 group-hover:bg-green-200 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                    </div>
-                    <span class="ml-3 text-sm font-medium text-gray-700 group-hover:text-green-600">Ajouter une catégorie</span>
-                </div>
-            </a>
-            <a href="{{ route('admin.users.index') }}" class="group p-4 border border-gray-200 rounded-lg hover:bg-blue-50 transition-colors">
-                <div class="flex items-center">
-                    <div class="p-2 rounded-md bg-blue-100 text-blue-600 group-hover:bg-blue-200 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                    </div>
-                    <span class="ml-3 text-sm font-medium text-gray-700 group-hover:text-blue-600">Gérer les utilisateurs</span>
-                </div>
-            </a>
-            <a href="{{ route('admin.stats') }}" class="group p-4 border border-gray-200 rounded-lg hover:bg-purple-50 transition-colors">
-                <div class="flex items-center">
-                    <div class="p-2 rounded-md bg-purple-100 text-purple-600 group-hover:bg-purple-200 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                    </div>
-                    <span class="ml-3 text-sm font-medium text-gray-700 group-hover:text-purple-600">Voir les statistiques</span>
-                </div>
-            </a>
+    {{-- Derniers utilisateurs --}}
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+            <h2 class="text-sm font-black text-slate-900">Derniers inscrits</h2>
+            <a href="{{ route('admin.users.index') }}" class="text-xs font-bold text-amber-600 hover:text-amber-700">Voir tout →</a>
         </div>
+        <ul class="divide-y divide-slate-100">
+            @forelse($stats['recentUsers'] as $user)
+            <li class="flex items-center gap-4 px-6 py-4 hover:bg-slate-50 transition">
+                <img src="{{ $user->profile_photo_url ?? 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&color=f59e0b&background=fef3c7' }}"
+                     class="h-9 w-9 flex-shrink-0 rounded-full ring-2 ring-slate-100" alt="{{ $user->name }}">
+                <div class="min-w-0 flex-1">
+                    <p class="truncate text-sm font-bold text-slate-800">{{ $user->name }}</p>
+                    <p class="truncate text-xs text-slate-400">{{ $user->email }}</p>
+                </div>
+                <span class="flex-shrink-0 text-xs text-slate-400">{{ $user->created_at->diffForHumans() }}</span>
+            </li>
+            @empty
+            <li class="px-6 py-8 text-center text-sm text-slate-400">Aucun utilisateur</li>
+            @endforelse
+        </ul>
     </div>
 </div>
+
 @endsection

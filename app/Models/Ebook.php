@@ -53,12 +53,39 @@ class Ebook extends Model
 
     public function getFileSizeAttribute()
     {
-        $size = $this->attributes['file_size'];
+        $size = $this->attributes['file_size'] ?? 0;
         if ($size >= 1048576) {
-            return round($size / 1048576, 1) . ' GB';
+            return round($size / 1048576, 1) . ' MB';
         } elseif ($size >= 1024) {
-            return round($size / 1024, 1) . ' MB';
+            return round($size / 1024, 1) . ' KB';
         }
-        return $size . ' KB';
+        return $size . ' B';
+    }
+
+    /**
+     * Alias cover_image → cover_path
+     * Les anciennes vues utilisent cover_image, la BDD stocke cover_path.
+     */
+    public function getCoverImageAttribute(): ?string
+    {
+        return $this->attributes['cover_path'] ?? null;
+    }
+
+    /**
+     * Retourne l'URL publique complète de la couverture.
+     */
+    public function getCoverUrlAttribute(): ?string
+    {
+        $path = $this->attributes['cover_path'] ?? null;
+        return $path ? \Illuminate\Support\Facades\Storage::url($path) : null;
+    }
+
+    /**
+     * Retourne l'URL publique complète du fichier à télécharger.
+     */
+    public function getFileUrlAttribute(): ?string
+    {
+        $path = $this->attributes['file_path'] ?? null;
+        return $path ? \Illuminate\Support\Facades\Storage::url($path) : null;
     }
 }

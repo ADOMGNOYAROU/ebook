@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin',
             'email' => 'admin@example.com',
             'password' => bcrypt('password'),
-            'is_admin' => true,
+            'role' => 'admin',
         ]);
 
         // Créer des catégories

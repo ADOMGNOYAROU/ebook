@@ -1,155 +1,69 @@
-/* Styles personnalisés pour E-BookHub */
-
-/* Réinitialisation complète des marges et paddings */
 * {
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     width: 100%;
     overflow-x: hidden;
 }
 
-/* Styles de base du body */
 body {
-    font-family: 'Poppins', sans-serif;
-    line-height: 1.6;
-    color: #2d3748;
-    background-color: #f7fafc;
+    font-family: 'Inter', sans-serif;
 }
 
-/* Correction pour la navigation fixe */
-.fixed-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 50;
-    background: white;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+[x-cloak] {
+    display: none !important;
 }
 
-/* Ajustement du contenu principal */
-main {
-    margin-top: 0 !important;
-    padding-top: 4rem; /* Hauteur de la barre de navigation */
-    min-height: calc(100vh - 4rem);
+.glass-card {
+    @apply border border-white/70 bg-white/80 shadow-xl shadow-slate-900/5 backdrop-blur-2xl;
 }
 
-/* Section héro sans marge */
-.hero-section {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
+.premium-card {
+    @apply rounded-[2rem] border border-slate-200/80 bg-white shadow-xl shadow-slate-900/5 transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-950/10;
 }
 
-/* Correction pour les petits écrans */
-@media (max-width: 768px) {
-    main {
-        padding-top: 3.5rem;
-    }
+.section-eyebrow {
+    @apply inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-indigo-700;
 }
 
-/* Boutons */
-.btn {
-    @apply inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out;
+.section-title {
+    @apply mt-5 text-3xl font-black tracking-tight text-slate-950 sm:text-5xl;
 }
 
-.btn-outline {
-    @apply border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-indigo-500;
+.section-subtitle {
+    @apply mt-4 max-w-2xl text-base font-medium leading-8 text-slate-600 sm:text-lg;
 }
 
-/* Cartes d'ebook */
+.btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-slate-950 px-6 py-3 text-sm font-black text-white shadow-xl shadow-slate-900/20 transition hover:-translate-y-0.5 hover:bg-indigo-600 hover:shadow-indigo-500/25;
+}
+
+.btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-black text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:text-indigo-700 hover:shadow-lg;
+}
+
 .ebook-card {
-    @apply bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg hover:-translate-y-1;
+    @apply overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-white shadow-xl shadow-slate-900/5 transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-950/10;
 }
 
-.ebook-card img {
-    @apply w-full h-48 object-cover;
+.ebook-cover-placeholder {
+    @apply flex items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-100 via-violet-100 to-fuchsia-100 text-indigo-500;
 }
 
-/* Navigation */
-.nav-link {
-    @apply text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200;
-}
-
-.nav-link.active {
-    @apply bg-indigo-50 text-indigo-700;
-}
-
-/* Formulaire */
-.form-input {
-    @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500;
-}
-
-/* Alertes */
-.alert {
-    @apply p-4 mb-4 rounded-md;
-}
-
-.alert-success {
-    @apply bg-green-50 text-green-800 border border-green-200;
-}
-
-.alert-error {
-    @apply bg-red-50 text-red-800 border border-red-200;
-}
-
-/* Animation de chargement */
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-.loading {
-    @apply animate-spin h-5 w-5 text-indigo-600;
-    animation: spin 1s linear infinite;
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-    .hero-content {
-        @apply text-center;
-    }
-    
-    .hero-buttons {
-        @apply flex-col space-y-3;
-    }
-    
-    .hero-buttons a {
-        @apply w-full justify-center;
-    }
-}
-
-/* Animation pour les cartes au survol */
-.ebook-card {
-    transform: translateY(0);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.ebook-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-/* Style pour les badges */
 .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-black;
 }
 
 .badge-primary {
-    @apply bg-indigo-100 text-indigo-800;
+    @apply bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200;
 }
 
 .badge-success {
-    @apply bg-green-100 text-green-800;
+    @apply bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200;
 }
 
-/* Style pour les icônes */
-.icon {
-    @apply h-5 w-5 text-gray-500;
-}
-
-.icon:hover {
-    @apply text-indigo-600;
+.form-input {
+    @apply w-full rounded-2xl border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm focus:border-indigo-400 focus:ring-indigo-400;
 }

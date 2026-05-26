@@ -20,6 +20,9 @@ class User extends Authenticatable
         'password',
         'role',
         'avatar',
+        'subscription_type',
+        'subscription_ends_at',
+        'downloads_remaining',
         'stripe_id',
         'pm_type',
         'pm_last_four',
@@ -100,6 +103,68 @@ class User extends Authenticatable
     public function hasFavorited(int $ebookId): bool
     {
         return $this->favorites()->where('ebooks.id', $ebookId)->exists();
+    }
+
+    /**
+     * Vérifie si l'utilisateur a un abonnement premium actif
+     */
+    public function isPremium(): bool
+    {
+        return $this->subscription_type === 'premium' && 
+               (!$this->subscription_ends_at || $this->subscription_ends_at->isFuture());
+    }
+
+    /**
+     * Vérifie si l'utilisateur a un compte gratuit
+     */
+    public function isFree(): bool
+    {
+        return !$this->isPremium();
+    }
+
+    /**
+     * Vérifie si l'utilisateur peut télécharger (limite pour comptes gratuits)
+     */
+    public function canDownload(): bool
+    {
+        if ($this->isPremium()) {
+            return true; // Illimité pour premium
+        }
+        return $this->downloads_remaining > 0;
+    }
+
+    /**
+     * Décrémente le compteur de téléchargements (pour comptes gratuits)
+     */
+    public function decrementDownloads(): void
+    {
+        if ($this->isFree() && $this->downloads_remaining > 0) {
+            $this->decrement('downloads_remaining');
+        }
+    }
+
+    /**
+     * Met à niveau l'utilisateur vers premium
+     */
+    public function upgradeToPremium(int $months = 1): void
+    {
+        $this->update([
+            'subscription_type' => 'premium',
+            'subscription_ends_at' => now()->addMonths($months),
+            'downloads_remaining' => -1, // Illimité
+        ]);
+    }
+
+    /**
+     * Downgrade l'utilisateur vers gratuit
+     */
+    public function downgradeToFree(): void
+    {
+        $this->update([
+            'subscription_type' => 'free',
+            'subscription_ends_at' => null,
+            'downloads_remaining' => 5, // 5 téléchargements gratuits
+        ]);
     }
 
     /**

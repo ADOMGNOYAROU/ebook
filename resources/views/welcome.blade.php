@@ -17,7 +17,8 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <link rel="stylesheet" href="{{ asset('build/assets/app-B1GTiBvM.css') }}">
+        <script src="{{ asset('build/assets/app-CiZ6hk-B.js') }}" defer></script>
         <style>
             .hero-banner {
                 background-image: linear-gradient(rgba(37, 99, 235, 0.8), rgba(37, 99, 235, 0.8)), url('{{ asset('images/c3.jpg') }}');
@@ -46,7 +47,7 @@
                         <!-- Logo -->
                         <div class="shrink-0 flex items-center">
                             <a href="{{ url('/') }}" class="text-2xl font-bold text-indigo-600">
-                                <i class="fas fa-book-open mr-2"></i>E-BookHub
+                                <i class="fas fa-book-open mr-2"></i>BookFlow
                             </a>
                         </div>
                         <!-- Navigation Links -->
@@ -247,7 +248,7 @@
                     </a>
                 </div>
                 <p class="mt-8 text-center text-base text-gray-400">
-                    &copy; {{ date('Y') }} E-BookHub. Tous droits réservés.
+                    &copy; {{ date('Y') }} BookFlow. Tous droits réservés.
                 </p>
             </div>
         </footer>

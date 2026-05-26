@@ -179,7 +179,7 @@ class PublicEbookController extends Controller
         $download->save();
 
         // Incrémenter le compteur de téléchargements
-        $ebook->increment('download_count');
+        $ebook->increment('downloads_count');
 
         // Retourner le fichier pour téléchargement
         return Storage::disk('public')->download(

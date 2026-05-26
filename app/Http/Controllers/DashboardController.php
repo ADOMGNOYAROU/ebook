@@ -26,7 +26,7 @@ class DashboardController extends Controller
         // Récupérer les données pour le tableau de bord
         $userDownloads = $user->downloads()->with('ebook')->latest()->take(5)->get();
         $userReviews = $user->reviews()->with('ebook')->latest()->take(5)->get();
-        $userFavorites = $user->favorites()->with('ebook')->latest()->take(5)->get();
+        $userFavorites = $user->favorites()->with('category')->latest()->take(5)->get();
         
         // Récupérer les notifications non lues
         $unreadNotifications = $user->unreadNotifications;
@@ -93,7 +93,6 @@ class DashboardController extends Controller
             
         // Derniers favoris
         $favorites = $user->favorites()
-            ->with('ebook')
             ->latest()
             ->take(5)
             ->get()
@@ -102,8 +101,8 @@ class DashboardController extends Controller
                     'type' => 'favorite',
                     'icon' => 'heart',
                     'color' => 'text-red-500',
-                    'text' => 'Vous avez ajouté "' . $favorite->ebook->title . '" à vos favoris',
-                    'time' => $favorite->created_at->diffForHumans()
+                    'text' => 'Vous avez ajouté "' . $favorite->title . '" à vos favoris',
+                    'time' => $favorite->pivot->created_at->diffForHumans()
                 ];
             });
         

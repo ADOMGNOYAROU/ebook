@@ -199,8 +199,8 @@
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-medium text-gray-900">Avis des lecteurs</h2>
                         @auth
-                            @if(!$userReview && auth()->user()->hasDownloaded($ebook->id))
-                                <button type="button" 
+                            @if(!$userReview)
+                                <button type="button"
                                         onclick="document.getElementById('review-form').classList.toggle('hidden'); window.scrollBy(0, 200);"
                                         class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
                                     Laisser un avis
@@ -211,22 +211,21 @@
                     
                     <!-- Formulaire d'avis (caché par défaut) -->
                     @auth
-                        @if(!$userReview && auth()->user()->hasDownloaded($ebook->id))
+                        @if(!$userReview)
                             <div id="review-form" class="mt-4 p-4 bg-gray-50 rounded-lg hidden">
                                 <h3 class="text-md font-medium text-gray-900 mb-3">Votre avis</h3>
                                 <form action="{{ route('reviews.store', $ebook) }}" method="POST">
                                     @csrf
                                     <div class="mb-3">
-                                        <div class="flex items-center">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Note (obligatoire)</label>
+                                        <div class="flex items-center gap-2">
                                             @for($i = 1; $i <= 5; $i++)
-                                                <button type="button" 
-                                                        onclick="setRating({{ $i }})" 
-                                                        class="text-2xl focus:outline-none"
-                                                        id="star-{{ $i }}">
-                                                    <i class="far fa-star text-yellow-400"></i>
-                                                </button>
+                                                <label class="cursor-pointer">
+                                                    <input type="radio" name="rating" value="{{ $i }}" required class="sr-only peer">
+                                                    <i class="far fa-star text-2xl text-gray-300 peer-checked:text-yellow-400 peer-checked:fas hover:text-yellow-300 transition"></i>
+                                                </label>
                                             @endfor
-                                            <input type="hidden" name="rating" id="rating" value="0" required>
+                                            <span class="ml-2 text-sm text-gray-500">Sélectionnez une note</span>
                                         </div>
                                         @error('rating')
                                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -351,36 +350,14 @@
 
 @push('scripts')
 <script>
-    // Fonction pour définir la note
-    function setRating(rating) {
-        // Mettre à jour les étoiles
-        for (let i = 1; i <= 5; i++) {
-            const star = document.getElementById(`star-${i}`);
-            if (i <= rating) {
-                star.innerHTML = '<i class="fas fa-star text-yellow-400"></i>';
-            } else {
-                star.innerHTML = '<i class="far fa-star text-yellow-400"></i>';
-            }
-        }
-        
-        // Mettre à jour la valeur du champ caché
-        document.getElementById('rating').value = rating;
-    }
-    
     // Fonction pour copier le lien dans le presse-papier
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(function() {
-            // Afficher un message de succès (vous pouvez utiliser une bibliothèque comme Toastr)
             alert('Lien copié dans le presse-papier !');
         }, function() {
             alert('Impossible de copier le lien');
         });
     }
-    
-    // Initialisation des tooltips (si nécessaire)
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialiser les tooltips avec Tippy.js ou autre bibliothèque si nécessaire
-    });
 </script>
 @endpush
 

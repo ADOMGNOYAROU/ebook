@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'paygateglobal' => [
+        'api_key' => env('PAYGATEGLOBAL_API_KEY'),
+    ],
+
 ];

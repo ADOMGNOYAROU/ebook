@@ -4,17 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Ebook;
 use App\Models\User;
+use App\Services\PayGateGlobalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Stripe\Stripe;
-use Stripe\Checkout\Session;
-use Stripe\Exception\ApiErrorException;
 
 class PaymentController extends Controller
 {
-    public function __construct()
+    protected PayGateGlobalService $paygate;
+
+    public function __construct(PayGateGlobalService $paygate)
     {
-        Stripe::setApiKey(config('cashier.secret'));
+        $this->paygate = $paygate;
     }
 
     /**
@@ -35,129 +35,124 @@ class PaymentController extends Controller
     }
 
     /**
-     * Traite le paiement
+     * Traite le paiement via PayGateGlobal (Méthode 2 - Redirection)
      */
     public function processPayment(Request $request, $ebookId)
     {
         $user = Auth::user();
         $ebook = Ebook::findOrFail($ebookId);
 
+        // Validation
+        $validated = $request->validate([
+            'phone' => 'required|string|min:8|max:15',
+            'network' => 'required|in:FLOOZ,MOOV,TOGOCEL,TMONEY',
+        ]);
+
         try {
-            // Créer une session de paiement Stripe
-            $session = Session::create([
-                'payment_method_types' => ['card'],
-                'line_items' => [[
-                    'price_data' => [
-                        'currency' => 'eur',
-                        'product_data' => [
-                            'name' => $ebook->title,
-                            'description' => substr($ebook->description, 0, 100) . '...',
-                        ],
-                        'unit_amount' => $ebook->price * 100, // Montant en centimes
-                    ],
-                    'quantity' => 1,
-                ]],
-                'mode' => 'payment',
-                'success_url' => route('payment.success') . '?session_id={CHECKOUT_SESSION_ID}&ebook_id=' . $ebook->id,
-                'cancel_url' => route('payment.cancel'),
-                'customer_email' => $user->email,
-                'metadata' => [
-                    'user_id' => $user->id,
-                    'ebook_id' => $ebook->id,
-                ],
+            // Créer l'identifiant unique de transaction
+            $identifier = 'ebook_' . $ebook->id . '_' . $user->id . '_' . time();
+
+            // Générer l'URL de paiement PayGateGlobal
+            $paymentUrl = $this->paygate->createPaymentPage([
+                'amount' => $ebook->price ?? 9.99,
+                'description' => 'Achat: ' . $ebook->title,
+                'identifier' => $identifier,
+                'return_url' => route('payment.success') . '?identifier=' . $identifier . '&ebook_id=' . $ebook->id,
+                'phone' => $request->phone,
+                'network' => $request->network,
             ]);
 
-            return redirect()->away($session->url);
+            if (!$paymentUrl) {
+                throw new \Exception('Impossible de créer la page de paiement');
+            }
+
+            // Sauvegarder l'identifiant en session pour vérification
+            session(['payment_identifier' => $identifier]);
+
+            return redirect()->away($paymentUrl);
 
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with('error', 'Une erreur est survenue lors du traitement de votre paiement: ' . $e->getMessage());
+                ->withInput()
+                ->with('error', 'Une erreur est survenue: ' . $e->getMessage());
         }
     }
 
     /**
-     * Gère le retour réussi de Stripe
+     * Gère le retour réussi du paiement
      */
     public function success(Request $request)
     {
-        $sessionId = $request->get('session_id');
+        $identifier = $request->get('identifier');
         $ebookId = $request->get('ebook_id');
         
-        if (!$sessionId || !$ebookId) {
+        if (!$identifier || !$ebookId) {
             return redirect()->route('public.ebooks.index')
-                ->with('error', 'Session de paiement invalide.');
+                ->with('error', 'Paiement invalide.');
         }
 
         try {
-            $session = Session::retrieve($sessionId);
-            
-            // Vérifier si le paiement a réussi
-            if ($session->payment_status === 'paid') {
-                $user = Auth::user();
-                $ebook = Ebook::findOrFail($ebookId);
+            // Vérifier le statut du paiement
+            $status = $this->paygate->checkPaymentStatusByIdentifier($identifier);
 
-                // Enregistrer l'achat
-                $user->purchasedEbooks()->attach($ebook->id, [
-                    'amount' => $session->amount_total / 100, // Convertir en euros
-                    'payment_id' => $session->payment_intent,
-                ]);
-
-                return view('payment.success', [
-                    'ebook' => $ebook,
-                    'payment_id' => $session->payment_intent,
-                    'amount' => $session->amount_total / 100,
-                ]);
+            if (!$status || !isset($status['status']) || $status['status'] != '0') {
+                return redirect()->route('public.ebooks.show', $ebookId)
+                    ->with('error', 'Le paiement n\'a pas été validé. Statut: ' . ($status['status'] ?? 'inconnu'));
             }
 
-            return redirect()->route('public.ebooks.show', $ebook->slug)
-                ->with('error', 'Le paiement n\'a pas été validé.');
+            $user = Auth::user();
+            $ebook = Ebook::findOrFail($ebookId);
+
+            // Enregistrer l'achat
+            $user->purchasedEbooks()->attach($ebook->id, [
+                'amount' => $status['amount'] ?? $ebook->price ?? 9.99,
+                'payment_id' => $status['tx_reference'] ?? $status['payment_reference'] ?? uniqid('PAY_'),
+                'payment_method' => $status['payment_method'] ?? 'FLOOZ',
+                'created_at' => now(),
+            ]);
+
+            return view('payment.success', [
+                'ebook' => $ebook,
+                'amount' => $status['amount'] ?? $ebook->price ?? 9.99,
+                'payment_method' => $status['payment_method'] ?? 'FLOOZ',
+            ]);
 
         } catch (\Exception $e) {
-            return redirect()->route('public.ebooks.show', $ebook->slug)
-                ->with('error', 'Erreur lors de la vérification du paiement: ' . $e->getMessage());
+            return redirect()->route('public.ebooks.show', $ebookId)
+                ->with('error', 'Erreur: ' . $e->getMessage());
         }
     }
 
     /**
      * Gère l'annulation du paiement
      */
-    public function cancel()
+    public function cancel(Request $request)
     {
-        return view('payment.cancel');
+        $ebookId = $request->get('ebook_id');
+        return view('payment.cancel', ['ebook_id' => $ebookId]);
     }
 
     /**
-     * Webhook pour les événements Stripe
+     * Webhook pour les notifications PayGateGlobal
      */
     public function webhook(Request $request)
     {
-        $payload = $request->getContent();
-        $sig_header = $request->header('Stripe-Signature');
-        $endpoint_secret = config('cashier.webhook.secret');
-
         try {
-            $event = \Stripe\Webhook::constructEvent(
-                $payload, $sig_header, $endpoint_secret
-            );
-        } catch (\UnexpectedValueException $e) {
-            // Invalid payload
-            return response('Invalid payload', 400);
-        } catch (\Stripe\Exception\SignatureVerificationException $e) {
-            // Invalid signature
-            return response('Invalid signature', 400);
-        }
+            $data = $request->all();
 
-        // Gérer l'événement
-        switch ($event->type) {
-            case 'checkout.session.completed':
-                $session = $event->data->object;
-                // Traiter le paiement réussi
-                break;
-            // ... gérer d'autres types d'événements
-            default:
-                echo 'Received unknown event type ' . $event->type;
-        }
+            // Vérifier que c'est une confirmation de paiement
+            if (!isset($data['tx_reference']) || !isset($data['identifier'])) {
+                return response('Invalid payload', 400);
+            }
 
-        return response('', 200);
+            // Trouver le paiement correspondant
+            // Vous pouvez ici mettre à jour le statut dans votre base de données
+            Log::info('PayGateGlobal webhook received', $data);
+
+            return response('', 200);
+        } catch (\Exception $e) {
+            Log::error('PayGateGlobal webhook error', ['error' => $e->getMessage()]);
+            return response('Error', 500);
+        }
     }
 }

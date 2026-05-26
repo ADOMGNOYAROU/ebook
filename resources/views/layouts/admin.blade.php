@@ -4,227 +4,143 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'E-Book Platform') }} - Administration</title>
-    <meta name="description" content="Panneau d'administration de la plateforme E-Book">
-    
-    <!-- Favicon -->
+    <title>@yield('title', 'Administration') — {{ config('app.name', 'BookFlow') }}</title>
     <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
-    
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/css/custom.css', 'resources/js/app.js'])
     @stack('styles')
-    
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            min-height: 100%;
-            width: 100%;
-            overflow-x: hidden;
-        }
-        
-        body {
-            font-family: 'Poppins', sans-serif;
-            padding-top: 0 !important;
-            background-color: #f9fafb;
-        }
-        
-        .admin-sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            width: 250px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            z-index: 40;
-            overflow-y: auto;
-        }
-        
-        .admin-content {
-            margin-left: 250px;
-            min-height: 100vh;
-            padding-top: 4rem;
-        }
-        
-        @media (max-width: 768px) {
-            .admin-sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-            
-            .admin-sidebar.open {
-                transform: translateX(0);
-            }
-            
-            .admin-content {
-                margin-left: 0;
-            }
-        }
-    </style>
 </head>
-<body class="font-sans antialiased bg-gray-50">
-    <div class="flex h-screen bg-gray-100">
-        <!-- Sidebar -->
-        <aside class="admin-sidebar">
-            <div class="p-4">
-                <div class="flex items-center space-x-3 mb-8">
-                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                        <i class="fas fa-book-open text-indigo-600"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-white font-bold text-lg">E-BookHub</h1>
-                        <p class="text-indigo-200 text-xs">Administration</p>
-                    </div>
-                </div>
-                
-                <!-- Navigation Menu -->
-                <nav class="space-y-2">
-                    <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-3 text-white hover:bg-white hover:bg-opacity-20 rounded-lg px-3 py-2 transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-white bg-opacity-20' : '' }}">
-                        <i class="fas fa-tachometer-alt w-5"></i>
-                        <span>Tableau de bord</span>
-                    </a>
-                    
-                    <a href="{{ route('admin.ebooks.index') }}" class="flex items-center space-x-3 text-white hover:bg-white hover:bg-opacity-20 rounded-lg px-3 py-2 transition-colors {{ request()->routeIs('admin.ebooks.*') ? 'bg-white bg-opacity-20' : '' }}">
-                        <i class="fas fa-book w-5"></i>
-                        <span>E-books</span>
-                    </a>
-                    
-                    <a href="{{ route('admin.categories.index') }}" class="flex items-center space-x-3 text-white hover:bg-white hover:bg-opacity-20 rounded-lg px-3 py-2 transition-colors {{ request()->routeIs('admin.categories.*') ? 'bg-white bg-opacity-20' : '' }}">
-                        <i class="fas fa-tags w-5"></i>
-                        <span>Catégories</span>
-                    </a>
-                    
-                    <a href="{{ route('admin.users.index') }}" class="flex items-center space-x-3 text-white hover:bg-white hover:bg-opacity-20 rounded-lg px-3 py-2 transition-colors {{ request()->routeIs('admin.users.*') ? 'bg-white bg-opacity-20' : '' }}">
-                        <i class="fas fa-users w-5"></i>
-                        <span>Utilisateurs</span>
-                    </a>
-                    
-                    <div class="border-t border-white border-opacity-20 my-4"></div>
-                    
-                    <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 text-white hover:bg-white hover:bg-opacity-20 rounded-lg px-3 py-2 transition-colors">
-                        <i class="fas fa-arrow-left w-5"></i>
-                        <span>Retour au site</span>
-                    </a>
-                </nav>
+<body class="h-full bg-slate-50 font-sans antialiased" x-data="{ sidebarOpen: false }">
+
+<div class="flex h-full">
+
+    {{-- ===== SIDEBAR ADMIN ===== --}}
+    <aside class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-slate-950 transition-transform duration-300 lg:static lg:translate-x-0"
+           :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+
+        {{-- Logo --}}
+        <div class="flex h-20 items-center gap-3 border-b border-white/10 px-6">
+            <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white">
+                <i class="fas fa-shield-halved text-sm"></i>
+            </span>
+            <div>
+                <p class="text-sm font-black text-white">BookFlow</p>
+                <p class="text-xs font-semibold text-amber-400">Administration</p>
             </div>
-            
-            <!-- User Info -->
-            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white border-opacity-20">
-                <div class="flex items-center space-x-3">
-                    <img class="w-8 h-8 rounded-full" src="{{ Auth::user()->profile_photo_url ?? 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&color=7F9CF5&background=EBF4FF' }}" alt="{{ Auth::user()->name }}">
-                    <div class="flex-1">
-                        <p class="text-white text-sm font-medium">{{ Auth::user()->name }}</p>
-                        <p class="text-indigo-200 text-xs">{{ Auth::user()->email }}</p>
-                    </div>
+        </div>
+
+        {{-- Nav --}}
+        <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-6">
+            @php
+                $adminNav = [
+                    ['route' => 'admin.dashboard',       'icon' => 'fa-gauge-high',  'label' => 'Vue d\'ensemble'],
+                    ['route' => 'admin.ebooks.index',    'icon' => 'fa-book',        'label' => 'E-books'],
+                    ['route' => 'admin.categories.index','icon' => 'fa-tags',        'label' => 'Catégories'],
+                    ['route' => 'admin.users.index',     'icon' => 'fa-users',       'label' => 'Utilisateurs'],
+                ];
+            @endphp
+            @foreach($adminNav as $item)
+                @php $active = request()->routeIs($item['route'].'*'); @endphp
+                <a href="{{ route($item['route']) }}"
+                   class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition
+                          {{ $active ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30' : 'text-slate-400 hover:bg-white/10 hover:text-white' }}">
+                    <i class="fas {{ $item['icon'] }} w-4 text-center"></i>
+                    {{ $item['label'] }}
+                </a>
+            @endforeach
+
+            <div class="my-3 border-t border-white/10"></div>
+            <a href="{{ route('dashboard') }}"
+               class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-400 transition hover:bg-white/10 hover:text-white">
+                <i class="fas fa-arrow-left w-4 text-center"></i>
+                Retour au site
+            </a>
+        </nav>
+
+        {{-- User footer --}}
+        <div class="border-t border-white/10 p-4">
+            <div class="flex items-center gap-3">
+                <img src="{{ Auth::user()->profile_photo_url ?? 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&color=f59e0b&background=1c1917' }}"
+                     class="h-9 w-9 rounded-full ring-2 ring-amber-500/30" alt="{{ Auth::user()->name }}">
+                <div class="min-w-0 flex-1">
+                    <p class="truncate text-xs font-bold text-white">{{ Auth::user()->name }}</p>
+                    <p class="text-xs font-semibold text-amber-400">Administrateur</p>
                 </div>
-                <form method="POST" action="{{ route('logout') }}" class="mt-3">
+                <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="w-full text-center text-white text-sm hover:bg-white hover:bg-opacity-20 rounded px-3 py-2 transition-colors">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                    <button type="submit" title="Déconnexion"
+                            class="flex h-8 w-8 items-center justify-center rounded-xl text-slate-400 transition hover:bg-white/10 hover:text-rose-400">
+                        <i class="fas fa-sign-out-alt text-sm"></i>
                     </button>
                 </form>
             </div>
-        </aside>
+        </div>
+    </aside>
 
-        <!-- Main Content -->
-        <main class="admin-content flex-1 overflow-y-auto">
-            <!-- Top Bar -->
-            <header class="bg-white shadow-sm border-b border-gray-200 fixed top-0 right-0 left-0 z-30" style="left: 250px;">
-                <div class="px-4 sm:px-6 lg:px-8">
-                    <div class="flex justify-between items-center h-16">
-                        <div class="flex items-center">
-                            <button class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none" onclick="toggleSidebar()">
-                                <i class="fas fa-bars text-xl"></i>
-                            </button>
-                            <h2 class="ml-4 text-xl font-semibold text-gray-800">
-                                @yield('title', 'Administration')
-                            </h2>
-                        </div>
-                        
-                        <div class="flex items-center space-x-4">
-                            <!-- Notifications -->
-                            <button class="relative text-gray-500 hover:text-gray-700 focus:outline-none">
-                                <i class="fas fa-bell text-xl"></i>
-                                <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">3</span>
-                            </button>
-                            
-                            <!-- User Menu -->
-                            <div class="relative">
-                                <button class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none">
-                                    <img class="w-8 h-8 rounded-full" src="{{ Auth::user()->profile_photo_url ?? 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&color=7F9CF5&background=EBF4FF' }}" alt="{{ Auth::user()->name }}">
-                                    <span class="hidden md:block text-sm font-medium">{{ Auth::user()->name }}</span>
-                                    <i class="fas fa-chevron-down text-xs"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+    {{-- Overlay mobile --}}
+    <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"
+         class="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm lg:hidden"></div>
+
+    {{-- ===== MAIN AREA ===== --}}
+    <div class="flex flex-1 flex-col overflow-hidden">
+
+        {{-- Top bar --}}
+        <header class="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-6 shadow-sm">
+            <div class="flex items-center gap-4">
+                <button @click="sidebarOpen = true"
+                        class="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 lg:hidden">
+                    <i class="fas fa-bars text-sm"></i>
+                </button>
+                <div>
+                    <h1 class="text-base font-black text-slate-900">@yield('title', 'Administration')</h1>
+                    <p class="text-xs text-slate-400">@yield('subtitle', 'Gestion de la plateforme')</p>
                 </div>
-            </header>
-
-            <!-- Page Content -->
-            <div class="p-4 sm:p-6 lg:p-8">
-                @if(session('success'))
-                    <div class="mb-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
-                        <div class="flex">
-                            <i class="fas fa-check-circle mt-0.5 mr-2"></i>
-                            <p>{{ session('success') }}</p>
-                        </div>
-                    </div>
-                @endif
-
-                @if(session('error'))
-                    <div class="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
-                        <div class="flex">
-                            <i class="fas fa-exclamation-circle mt-0.5 mr-2"></i>
-                            <p>{{ session('error') }}</p>
-                        </div>
-                    </div>
-                @endif
-
-                @if($errors->any())
-                    <div class="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
-                        <div class="flex">
-                            <i class="fas fa-exclamation-triangle mt-0.5 mr-2"></i>
-                            <div>
-                                <p class="font-medium">Il y a des erreurs dans le formulaire :</p>
-                                <ul class="mt-1 list-disc list-inside text-sm">
-                                    @foreach($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
-                @yield('content')
             </div>
+            <div class="flex items-center gap-3">
+                <span class="hidden items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700 ring-1 ring-amber-200 sm:flex">
+                    <i class="fas fa-shield-halved"></i> Admin
+                </span>
+                <img src="{{ Auth::user()->profile_photo_url ?? 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&color=f59e0b&background=fef3c7' }}"
+                     class="h-9 w-9 rounded-full ring-2 ring-amber-100" alt="{{ Auth::user()->name }}">
+            </div>
+        </header>
+
+        {{-- Flash messages --}}
+        @if(session('success'))
+        <div class="mx-6 mt-4">
+            <div class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3.5 text-sm font-semibold text-emerald-800">
+                <i class="fas fa-check-circle text-emerald-500"></i> {{ session('success') }}
+            </div>
+        </div>
+        @endif
+        @if(session('error'))
+        <div class="mx-6 mt-4">
+            <div class="flex items-center gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3.5 text-sm font-semibold text-rose-800">
+                <i class="fas fa-exclamation-circle text-rose-500"></i> {{ session('error') }}
+            </div>
+        </div>
+        @endif
+        @if($errors->any())
+        <div class="mx-6 mt-4">
+            <div class="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3.5 text-sm text-rose-800">
+                <p class="font-bold"><i class="fas fa-triangle-exclamation mr-2"></i>Erreurs dans le formulaire :</p>
+                <ul class="mt-2 list-disc space-y-1 pl-5 text-xs">
+                    @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
+                </ul>
+            </div>
+        </div>
+        @endif
+
+        {{-- Page content --}}
+        <main class="flex-1 overflow-y-auto p-6">
+            @yield('content')
         </main>
     </div>
+</div>
 
-    @stack('scripts')
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.querySelector('.admin-sidebar');
-            sidebar.classList.toggle('open');
-        }
-        
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const sidebar = document.querySelector('.admin-sidebar');
-            const toggleButton = event.target.closest('button[onclick="toggleSidebar()"]');
-            
-            if (window.innerWidth < 768 && !sidebar.contains(event.target) && !toggleButton) {
-                sidebar.classList.remove('open');
-            }
-        });
-    </script>
-    @endstack
+@stack('scripts')
 </body>
 </html>
